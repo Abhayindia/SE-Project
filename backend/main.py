@@ -19,7 +19,8 @@ api.add_resource(TicketDelete,'/api/ticket/<int:ticket_id>')
 api.add_resource(UserDelete,'/api/user/<int:user_id>')
 api.add_resource(ResponseAPI_by_responseID_delete, '/api/respRespDel/<int:responder_id>/<int:response_id>')
 api.add_resource(CategoryAPI, '/api/category')
-api.add_resource(EscalateTicketAPI, '/api/escalate')
+api.add_resource(EscalateTicketAPI, '/api/escalate_to_gspace')
+
 from application.routes import *
 if __name__ == '__main__':
   # Run the Flask app

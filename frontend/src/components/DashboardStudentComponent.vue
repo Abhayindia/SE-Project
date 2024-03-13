@@ -3,6 +3,12 @@
         <div class="topic-container">
             <div  v-for="(t, index) in tickets"  :key="index">
                 <div class="row">
+                    <div v-if="t.is_escalated === true">
+                        <span class="badge bg-danger">ESCALATED</span>
+                        <!-- Debugging output -->
+                        <p>Debugging: {{ t.is_escalated }}</p>
+                    </div>
+
                     <div class="col-md-10">
                         <RouterLink :to="{ name: 'response', params: { ticketId: t.ticket_id } }">
                             <p class="ticket-title">
@@ -15,11 +21,6 @@
                                 <button class="btn btn-success btn-sm disabled">Ticket Closed <i class="bi bi-patch-question-fill"></i></button>
                                 </span>
                             </div>
-                            <!-- <div v-if="t.is_escalated === true">
-                                <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Support agent has marked this ticket as escalated. To reopen, simply reply with your query">
-                                    <button class="btn btn-success btn-sm disabled">Escalated <i class="bi bi-patch-question-fill"></i></button>
-                                </span>
-                            </div> -->
                             <div v-else-if="t.is_open==1 && t.is_read==0">
                                 <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="This ticket is still hasn't been read by a support agent. Please wait 48 hours before escalating.">
                                 <button class="btn btn-sm btn-outline-danger disabled">Unread <i class="bi bi-patch-question-fill"></i></button>
@@ -51,7 +52,7 @@
                                             Edit
                                         </RouterLink>
                                     </li>
-                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date)">Escalate</li>
+                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date, role_id = 1)">Escalate</li>
                                     <li class="dropdown-item text-center" data-bs-toggle="modal" data-bs-target="#ratingModal" v-if="t.is_open==0" @click="this.selected_ticket=t.ticket_id"> Rate Resolution
 
                                     </li>
@@ -152,7 +153,7 @@ export default {
             });
             this.$router.go();
         },
-        async escalateTicket(ticket_id, creation_date) {
+        async escalateTicket(ticket_id, creation_date, role_id) {
             const currentTime = new Date();
             const ticketCreationTime = new Date(creation_date);
             const timeDifferenceInHours = Math.floor((currentTime - ticketCreationTime) / (1000 * 60 * 60));
@@ -165,7 +166,7 @@ export default {
             }
 
             // Call the backend function to escalate
-            axios.post("/api/escalate", { ticket_id: ticket_id })
+            axios.post("/api/escalate_to_gspace_student", { ticket_id: ticket_id, role_id: role_id})
                 .then((res) => {
                     console.log(res);
                     // Optionally, you can provide feedback to the user that escalation was successful

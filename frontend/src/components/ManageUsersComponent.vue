@@ -79,10 +79,31 @@ export default {
             username: "",
             usernames: [],
             user_id: null,
+            flaggedPosts: [],
         };
 
     },
+    mounted() {
+        this.fetchFlaggedPosts();
+    },
     methods: {
+        async fetchFlaggedPosts() {
+        try {
+            const response = await axios.get('/api/flagged_posts');
+            this.flaggedPosts = response.data;
+        } catch (error) {
+            console.error('Error fetching flagged posts:', error);
+        }
+        },
+        async banOrSilenceUser(userId) {
+        try {
+            await axios.put(`/api/ban_or_silence_user/${userId}`);
+            // Update the UI to reflect the action taken
+            this.fetchFlaggedPosts();
+        } catch (error) {
+            console.error('Error banning/silencing user:', error);
+        }
+        },
         async onDelete(x) {
             x.preventDefault();
             await axios.get("/api/user").then((res) => {

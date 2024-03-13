@@ -30,6 +30,9 @@
                     <div class="col-md-2">
                         <button class="btn btn-danger rounded" @click="rejectFlag(t.ticket_id)"> Reject </button>
                     </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-danger rounded" @click="escalateTicket(t.ticket_id)"> Escalate </button>
+                    </div>
                 </div>
                 <hr />
             </div>
@@ -87,6 +90,15 @@ export default {
             var status = await axios.patch('/api/flaggedPosts', { ticket_id: thing, is_rejected: true });
             console.log(status);
             this.$router.go();
+        },
+        async escalateTicket(ticket_id) {
+            axios.post("/api/escalate_to_gspace_admin", { ticket_id: ticket_id })
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         }
     },
     async created() {

@@ -188,7 +188,7 @@ class UserAPI(Resource):
             user=User.query.all()
             result=[]
             for user in user:
-                if(user.role_id==1 or user.role_id==2):
+                if(user.role_id==1 or user.role_id==2 or user.role_id==5):
                     d={}
                     d['user_id']=user.user_id
                     d['user_name']=user.user_name
@@ -961,6 +961,7 @@ class EscalateTicketAPI(Resource):
     def post(self):
         data = request.get_json()
         ticket_id = data.get('ticket_id')
+        role_id = data.get('role_id')
         if ticket_id is None:
             return jsonify({'error': 'Ticket ID is required'}), 400
         
@@ -972,7 +973,19 @@ class EscalateTicketAPI(Resource):
                     
         webhook_url = "https://chat.googleapis.com/v1/spaces/AAAA5TEogcY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=-DWAU3G0CD5SylaJ_g_aIU9PW-Z8I7hHfyJm1As7k2Y"
         
-        message = f"Escalation alert for Ticket Number {ticket_id}"
+        if (role_id == 1):
+            message = f"Escalation alert for Ticket Number {ticket_id} by a Student."
+        elif (role_id == 2):
+            message = f"Escalation alert for Ticket Number {ticket_id} by a Support Staff Member."
+        elif (role_id == 3):
+            message = f"Escalation alert for Ticket Number {ticket_id} by a Admin."
+        elif (role_id == 4):
+            message = f"Escalation alert for Ticket Number {ticket_id} by a Manager."
+        elif (role_id == 5):
+            message = f"Escalation alert for Ticket Number {ticket_id} by a Moderator."
+        else:
+            message = f"Escalation alert for Ticket Number {ticket_id}."
+
         payload = {
             "text": message
         }
@@ -983,5 +996,3 @@ class EscalateTicketAPI(Resource):
             print(f"Failed to post message. Status code: {response.status_code}")
 
         return jsonify({'message': 'Ticket escalated successfully'})
-
-   

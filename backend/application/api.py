@@ -962,26 +962,32 @@ class EscalateTicketAPI(Resource):
         data = request.get_json()
         ticket_id = data.get('ticket_id')
         role_id = data.get('role_id')
+        is_escalated = data.get('is_escalated')  # Default value is False if not provided
+        print(is_escalated)
         if ticket_id is None:
             return jsonify({'error': 'Ticket ID is required'}), 400
+        
+        if is_escalated:  # Check if is_escalated is True
+            print("Ticket is already escalated.")
+            return jsonify({'message': 'Ticket is already escalated'})
         
         # Update database
         ticket = Ticket.query.get(ticket_id)
         if ticket:
-            ticket.is_escalated = True
+            ticket.is_escalated = 1  # Set the value to 1
             db.session.commit()
                     
         webhook_url = "https://chat.googleapis.com/v1/spaces/AAAA5TEogcY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=-DWAU3G0CD5SylaJ_g_aIU9PW-Z8I7hHfyJm1As7k2Y"
         
-        if (role_id == 1):
+        if role_id == 1:
             message = f"Escalation alert for Ticket Number {ticket_id} by a Student."
-        elif (role_id == 2):
+        elif role_id == 2:
             message = f"Escalation alert for Ticket Number {ticket_id} by a Support Staff Member."
-        elif (role_id == 3):
-            message = f"Escalation alert for Ticket Number {ticket_id} by a Admin."
-        elif (role_id == 4):
+        elif role_id == 3:
+            message = f"Escalation alert for Ticket Number {ticket_id} by an Admin."
+        elif role_id == 4:
             message = f"Escalation alert for Ticket Number {ticket_id} by a Manager."
-        elif (role_id == 5):
+        elif role_id == 5:
             message = f"Escalation alert for Ticket Number {ticket_id} by a Moderator."
         else:
             message = f"Escalation alert for Ticket Number {ticket_id}."

@@ -3,12 +3,6 @@
         <div class="topic-container">
             <div  v-for="(t, index) in tickets"  :key="index">
                 <div class="row">
-                    <div v-if="t.is_escalated === true">
-                        <span class="badge bg-danger">ESCALATED</span>
-                        <!-- Debugging output -->
-                        <p>Debugging: {{ t.is_escalated }}</p>
-                    </div>
-
                     <div class="col-md-10">
                         <RouterLink :to="{ name: 'response', params: { ticketId: t.ticket_id } }">
                             <p class="ticket-title">
@@ -18,17 +12,17 @@
                         <div class="btn-grp">
                             <div v-if="t.is_open == 0">
                                 <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="Support agent has marked this ticket as closed. To reopen, simply reply with your query">
-                                <button class="btn btn-success btn-sm disabled">Ticket Closed <i class="bi bi-patch-question-fill"></i></button>
+                                    <button class="btn btn-success btn-sm disabled">Ticket Closed <i class="bi bi-patch-question-fill"></i></button>
                                 </span>
                             </div>
                             <div v-else-if="t.is_open==1 && t.is_read==0">
                                 <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="This ticket is still hasn't been read by a support agent. Please wait 48 hours before escalating.">
-                                <button class="btn btn-sm btn-outline-danger disabled">Unread <i class="bi bi-patch-question-fill"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger disabled">Unread <i class="bi bi-patch-question-fill"></i></button>
                                 </span>
                             </div>
                             <div v-if="t.is_open==1 && t.is_read == 1">
                                 <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="A support agent has read your query. Please wait as they will respond shortly">
-                                <button class="btn btn-sm btn-outline-success disabled">Read <i class="bi bi-patch-question-fill"></i></button>
+                                    <button class="btn btn-sm btn-outline-success disabled">Read <i class="bi bi-patch-question-fill"></i></button>
                                 </span>
                             </div>
                         </div>
@@ -52,13 +46,13 @@
                                             Edit
                                         </RouterLink>
                                     </li>
-                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date, role_id = 1)">Escalate</li>
-                                    <li class="dropdown-item text-center" data-bs-toggle="modal" data-bs-target="#ratingModal" v-if="t.is_open==0" @click="this.selected_ticket=t.ticket_id"> Rate Resolution
-
+                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date, 1, t.is_escalated)">
+                                        Escalate
+                                    </li>
+                                    <li class="dropdown-item text-center" data-bs-toggle="modal" data-bs-target="#ratingModal" v-if="t.is_open==0" @click="selected_ticket = t.ticket_id"> Rate Resolution
                                     </li>
                                 </ul>
                             </div>
-                            <!-- <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#ratingModal" v-if="t.is_open==0" @click="this.selected_ticket=t.ticket_id">Rate Resolution</button> -->
                         </div>
                     </div>
                 </div>
@@ -72,40 +66,43 @@
         </div>
     </div>
     <!-- Modal -->
-<div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="ratingModalLabel"> Please rate the resolution of this ticket</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-    <label for="myChoice1">Very Unhappy<br />
-        <input type="radio" v-model="rating" value="1" id="myChoice1"> 
-    </label>
-    <label for="myChoice2">Unhappy<br />
-        <input type="radio" v-model="rating" value="2" id="myChoice2"> 
-    </label>
-    <label for="myChoice3">Neutral<br />
-        <input type="radio" v-model="rating" value="3" id="myChoice3"> 
-    </label>
-    <label for="myChoice4">Happy<br />
-        <input type="radio" v-model="rating" value="4" id="myChoice4"> 
-    </label>
-    <label for="myChoice5">Very Happy<br />
-        <input type="radio" v-model="rating" value="5" id="myChoice5">
-    </label>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="submitRating()">Submit</button>
-      </div>
+    <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ratingModalLabel"> Please rate the resolution of this ticket</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="myChoice1">Very Unhappy<br />
+                        <input type="radio" v-model="rating" value="1" id="myChoice1"> 
+                    </label>
+                    <label for="myChoice2">Unhappy<br />
+                        <input type="radio" v-model="rating" value="2" id="myChoice2"> 
+                    </label>
+                    <label for="myChoice3">Neutral<br />
+                        <input type="radio" v-model="rating" value="3" id="myChoice3"> 
+                    </label>
+                    <label for="myChoice4">Happy<br />
+                        <input type="radio" v-model="rating" value="4" id="myChoice4"> 
+                    </label>
+                    <label for="myChoice5">Very Happy<br />
+                        <input type="radio" v-model="rating" value="5" id="myChoice5">
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" @click="submitRating()">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 </template>
+
+
 <script>
 import axios from "axios";
+
 export default {
     name: "DashboardStudentComponent",
     data() {
@@ -153,20 +150,29 @@ export default {
             });
             this.$router.go();
         },
-        async escalateTicket(ticket_id, creation_date, role_id) {
-            const currentTime = new Date();
-            const ticketCreationTime = new Date(creation_date);
-            const timeDifferenceInHours = Math.floor((currentTime - ticketCreationTime) / (1000 * 60 * 60));
+        async escalateTicket(ticket_id, creation_date, role_id, is_escalated) {
+        console.log("Is escalated:", is_escalated); // Log the value of is_escalated for debugging
 
-            if (timeDifferenceInHours < 72) {
+        const currentTime = new Date();
+        const ticketCreationTime = new Date(creation_date);
+        const timeDifferenceInHours = Math.floor((currentTime - ticketCreationTime) / (1000 * 60 * 60));
+        
+           if (timeDifferenceInHours < 72) {
                 const remainingHours = 72 - timeDifferenceInHours;
                 const remainingMessage = `You cannot escalate this ticket before 72 hours have passed. Remaining time: ${remainingHours} hours.`;
                 alert(remainingMessage);
                 return; // Don't proceed with escalation
             }
+                // Check if the ticket is already escalated
+            if (is_escalated) {
+                // Provide feedback to the user that the ticket is already escalated
+                alert("This ticket is already escalated.");
+                return;
+            }
 
+            role_id = 1
             // Call the backend function to escalate
-            axios.post("/api/escalate_to_gspace_student", { ticket_id: ticket_id, role_id: role_id})
+            axios.post("/api/escalate_to_gspace", { ticket_id: ticket_id, role_id: role_id, is_escalated: is_escalated})
                 .then((res) => {
                     console.log(res);
                     // Optionally, you can provide feedback to the user that escalation was successful

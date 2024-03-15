@@ -8,10 +8,10 @@ db_file = os.path.join('db_directory', 'testdb.sqlite3')
 def recreate_users_table():
     # User data
     users_data = [
-        # (1, 'student', 'pass@123', 'student@gmail.com', 1),
-        # (2, 'suppor_agent', 'pass@123', 'support@gmail.com', 2),
-        # (3, 'admin_user', 'pass@123', 'admin@gmail.com', 3),
-        # (4, 'manager', 'pass@123', 'manager@gmail.com', 4),
+        (1, 'student', 'pass@123', 'student@gmail.com', 1),
+        (2, 'suppor_agent', 'pass@123', 'support@gmail.com', 2),
+        (3, 'admin_user', 'pass@123', 'admin@gmail.com', 3),
+        (4, 'manager', 'pass@123', 'manager@gmail.com', 4),
         (5, 'moderator', 'pass@123', 'moderator@gmail.com', 5),
     ]
 

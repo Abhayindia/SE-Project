@@ -56,7 +56,7 @@
                                     <li class="dropdown-item text-center" @click="mark_as_closed(t.ticket_id)">
                                         Mark as closed
                                     </li>
-                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date, role_id)">Escalate</li>
+                                    <li class="dropdown-item text-center" @click="escalateTicket(t.ticket_id, t.creation_date, role_id = 2)">Escalate</li>
                                 </ul>
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export default {
         },
         async escalateTicket(ticket_id, role_id) {
             role_id = 2
-            axios.post("/api/escalate_to_gspace", { ticket_id: ticket_id, role_id})
+            axios.post("/api/escalate_to_gspace", { ticket_id: ticket_id, role_id: role_id})
                 .then((res) => {
                     console.log(res);
                 })

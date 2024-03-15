@@ -44,7 +44,9 @@ class Ticket(db.Model):
     responses = db.relationship('Response', back_populates='parent_list', lazy='subquery')
     creator = db.relationship('User', back_populates='tickets', lazy='subquery')
     rating = db.Column(db.Integer)
-    is_escalated=db.Column(db.Boolean,nullable=True)
+    # is_escalated=db.Column(db.Boolean,nullable=False, default=False)
+    is_escalated = db.Column(db.Integer, nullable=False, default=0)
+
 
 
 class Category(db.Model):

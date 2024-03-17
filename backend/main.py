@@ -1,6 +1,6 @@
 from application import app, api, celery
 
-from application.api import EscalateTicketAPI, TicketAPI , UserAPI, FAQApi, ResponseAPI_by_ticket, ResponseAPI_by_response_id, ResponseAPI_by_user,TicketAll, getResolutionTimes, flaggedPostAPI, getResponseAPI_by_ticket,Login,ImportResourceUser, ResponseAPI_by_responseID_delete, CategoryAPI
+from application.api import DiscourseTopicAPI, EscalateTicketAPI, TicketAPI , UserAPI, FAQApi, ResponseAPI_by_ticket, ResponseAPI_by_response_id, ResponseAPI_by_user,TicketAll, getResolutionTimes, flaggedPostAPI, getResponseAPI_by_ticket,Login,ImportResourceUser, ResponseAPI_by_responseID_delete, CategoryAPI
 from application.api import TicketDelete,UserDelete
 
 api.add_resource(TicketAPI, '/api/ticket')
@@ -20,6 +20,7 @@ api.add_resource(UserDelete,'/api/user/<int:user_id>')
 api.add_resource(ResponseAPI_by_responseID_delete, '/api/respRespDel/<int:responder_id>/<int:response_id>')
 api.add_resource(CategoryAPI, '/api/category')
 api.add_resource(EscalateTicketAPI, '/api/escalate_to_gspace')
+api.add_resource(DiscourseTopicAPI, '/api/discourse/topics')
 
 from application.routes import *
 if __name__ == '__main__':

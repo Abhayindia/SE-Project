@@ -1002,3 +1002,42 @@ class EscalateTicketAPI(Resource):
             print(f"Failed to post message. Status code: {response.status_code}")
 
         return jsonify({'message': 'Ticket escalated successfully'})
+    
+class DiscourseTopicAPI(Resource):
+    def post(self):
+        data = request.get_json()
+        try:
+            user = User.query.filter_by(user_id=data["created_by"]).first()
+            username = user.user_name
+            tid = data["ticket_id"]
+            title = data["title"]
+            raw = data["raw"]
+            category = 4
+            existing = requests.get("http://localhost:4200/t/external_id/"+str(tid)+".json")
+            if existing.status_code == 200:
+                print("Post with title",title,"aws already created")
+                return '',201
+            # print("Values",username,tid,title,raw,sep='\n',flush = True)
+            if username is None or tid is None or title is None or raw is None:
+                # print("Raising from here",username,tid,title,raw,sep='\n')
+                return '',403
+            url = "http://localhost:4200/posts.json"
+            headers = {"Content-Type": "application/json; charset=utf-8",
+                    "Api-Key":"115af25971f9d12687f0949dffad8b3150e6ab536d85f364e4bf5f0c9ce3278e",
+                    "Api-Username":username}
+            
+            data = {
+                    "title": title,
+                    "raw": raw,
+                    "category": category,
+                    "external_id":tid
+                    }
+            response = requests.post(url, headers=headers, json=data)
+            stat = response.status_code
+            # print("Status Code", stat)
+            # print("JSON Response ", res)
+            if stat == 200:
+                print("Created post successulututu")
+                return '',200
+        except:
+            return '',403

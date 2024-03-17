@@ -1,0 +1,18 @@
+- Setup discourse and generate API key for admin account
+
+- Create users on discourse for all the students (role_id == 1) through data given in create_user.py by POST request to localhost:4200/users.json (assuming default discourse settings)
+with body example
+{
+  "name": "Abhay",
+  "email": "abhay@gmail.com",
+  "password": "abhay@1234",
+  "username": "abhay",
+  "active": true
+}
+and headers
+Api-Username: <Admin account username>
+Api-Key: <Admin account API key>
+
+- Run create_user.py too to create the new users on DITTO
+
+- Create another global scope API key on discourse for all users access and paste it in backend/application/api.py DiscourseTopicAPI/POST method headers in "Api-Key"

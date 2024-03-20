@@ -13,6 +13,21 @@
         <div class = "topic-container">
             <h3><RouterLink :to= "{name: 'manageFlaggedPosts'}">View Flagged Posts</RouterLink></h3>
         </div>
+        <br/>
+        <hr/>
+        <div class = "topic-container">
+            <h3><RouterLink :to= "{name: 'unresolvedTickets'}">View Unresolved Tickets</RouterLink></h3>
+        </div>
+        <br/>
+        <hr/>
+        <div class = "topic-container">
+            <h3><RouterLink :to= "{name: 'escalatedTickets'}">Tickets Raised by Support Staff</RouterLink></h3>
+        </div>
+        <br/>
+        <hr/>
+        <div class = "topic-container">
+            <h3><RouterLink :to= "{name: 'banUsers'}">Ban Users</RouterLink></h3>
+        </div>
     </div>
 </template>
 <script>

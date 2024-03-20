@@ -20,6 +20,7 @@ class User(db.Model):
     role_id=db.Column(db.Integer,nullable=False) #Role ID for students is 1, for Support Staff Member is 2, Admins is 3, Manager is 4, Moderator is 5.
     responses = db.relationship('Response', back_populates='responder', lazy='subquery')
     tickets = db.relationship('Ticket',  back_populates='creator', lazy='subquery')
+    blocked = db.Column(db.Boolean, default=False)  # Column to track if the user is blocked
 
 class Response(db.Model):
     response_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -46,8 +47,7 @@ class Ticket(db.Model):
     rating = db.Column(db.Integer)
     # is_escalated=db.Column(db.Boolean,nullable=False, default=False)
     is_escalated = db.Column(db.Integer, nullable=False, default=0)
-
-
+    escalated_by=db.Column(db.Integer)
 
 class Category(db.Model):
     category = db.Column(db.String(50), primary_key=True)

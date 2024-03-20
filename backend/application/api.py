@@ -1,5 +1,6 @@
-from flask_restful import Resource, request, abort
-from flask import jsonify
+import json
+from flask_restful import Resource, request, abort, Api
+from flask import jsonify, Flask, request
 from datetime import datetime
 from dateutil import tz, parser
 from application.models import User, Response, Ticket, FAQ, Category, Flagged_Post
@@ -828,7 +829,7 @@ class flaggedPostAPI(Resource):
     #Will be triggered from the frontend when the support agent presses the button for a post to be offensive.
     #From frontend, two actions will be triggered. One would set is_offensive as True in the ticket database, and the other would use the post request here to add it to the flagged post class
     def post(user,self):
-        if user.role_id ==2:
+        if user.role_id ==5:
             args = request.get_json(force = True)
             flagger_id = None
             creator_id = None
@@ -849,7 +850,7 @@ class flaggedPostAPI(Resource):
             except:
                 abort(403, message = "Please pass the Ticket ID.")
             try:
-                flagger = User.query.filter_by(user_id = flagger_id, role_id = 2).first()
+                flagger = User.query.filter_by(user_id = flagger_id, role_id = 5).first()
                 if flagger is None:
                     raise invalidFlaggerException
             except invalidFlaggerException:
@@ -910,6 +911,14 @@ class Login(Resource):
             email = request.form["email"]
             password = request.form["password"]
         test = User.query.filter_by(email_id=email).first()
+
+        if test is None:
+            abort(409, message="User does not exist")
+        elif test.blocked:
+            abort(401, message="User is blocked")
+        elif test.password != password:
+            abort(401, message="Bad Email or Password")
+
         # print(test)
         if (test is None):
             abort(409,message="User does not exist")
@@ -975,6 +984,7 @@ class EscalateTicketAPI(Resource):
         ticket = Ticket.query.get(ticket_id)
         if ticket:
             ticket.is_escalated = 1  # Set the value to 1
+            ticket.escalated_by = role_id
             db.session.commit()
                     
         webhook_url = "https://chat.googleapis.com/v1/spaces/AAAA5TEogcY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=-DWAU3G0CD5SylaJ_g_aIU9PW-Z8I7hHfyJm1As7k2Y"
@@ -1002,7 +1012,108 @@ class EscalateTicketAPI(Resource):
             print(f"Failed to post message. Status code: {response.status_code}")
 
         return jsonify({'message': 'Ticket escalated successfully'})
+
+
+class UnresolvedTicketsNotification(Resource):
+    def get(self):
+        try:
+            # Calculate the datetime three days ago
+            three_days_ago = datetime.utcnow() - timedelta(days=3)
+            
+            unresolved_tickets = Ticket.query.filter(Ticket.is_open == True, Ticket.creation_date <= three_days_ago).all()
+            notifications = []
+            for ticket in unresolved_tickets:
+                message = f"Ticket ID {ticket.ticket_id} created on {ticket.creation_date} is still unresolved."
+                notifications.append(message)
+            
+            return {"notifications": notifications}, 200  # Return as a dictionary
+        
+        except Exception as e:
+            # Handle the exception by returning a JSON response with error message
+            return {"error": str(e)}, 500
+        
+class EscalatedTicketNotification(Resource):
+    def get(self):
+        try:
+            unresolved_tickets = Ticket.query.filter_by(escalated_by=2).all()
+            notifications = []
+            for ticket in unresolved_tickets:
+                message = f"Ticket ID {ticket.ticket_id} created on {ticket.creation_date} is still unresolved."
+                notifications.append(message)
+            
+            return {"notifications": notifications}, 200  # Return as a dictionary
+        
+        except Exception as e:
+            # Handle the exception by returning a JSON response with error message
+            return {"error": str(e)}, 500
+
+
+from sqlalchemy import func
+class FetchPotentialBan(Resource):
+    def get(self):
+        FLAG_THRESHOLD = 3  # Define your flag threshold
+        flagged_users = db.session.query(User, func.count(Flagged_Post.creator_id).label('flag_count')) \
+                        .outerjoin(Flagged_Post, User.user_id == Flagged_Post.creator_id) \
+                        .group_by(User.user_id) \
+                        .having(func.count(Flagged_Post.creator_id) >= FLAG_THRESHOLD) \
+                        .all()
+
+        flagged_users_data = []
+        for user, flag_count in flagged_users:
+            user_data = {
+                'user_id': user.user_id,
+                'user_name': user.user_name,
+                'email_id': user.email_id,
+                'flag_count': flag_count
+            }
+            flagged_users_data.append(user_data)
+
+        return jsonify(flagged_users_data)
     
+class ViewFlaggedPost(Resource):
+    @token_required
+    def get(self, user):
+        user_id = request.args.get('user_id')
+        if user_id is None:
+            return jsonify({"error": "User ID is required"}), 400
+        
+        # Query flagged posts for the specified user including ticket information
+        flagged_posts = db.session.query(Flagged_Post, Ticket)\
+            .filter(Flagged_Post.creator_id == user_id)\
+            .join(Ticket, Flagged_Post.ticket_id == Ticket.ticket_id)\
+            .all()
+
+        flagged_posts_data = []
+        for flagged_post, ticket in flagged_posts:
+            post_data = {
+                'ticket_id': flagged_post.ticket_id,
+                'title': ticket.title,
+                'description': ticket.description,
+                # Include other relevant post information here
+            }
+            flagged_posts_data.append(post_data)
+
+        return jsonify(flagged_posts_data)
+
+class BanUsersNotifications(Resource):
+    def post(self):
+        data = request.get_json()
+        user_id_to_block = data.get('user_id')
+
+        if not user_id_to_block:
+            return {"status": "failure", "message": "User ID is required"}, 400
+
+        user_to_block = User.query.filter_by(user_id=user_id_to_block).first()
+        if not user_to_block:
+            return {"status": "failure", "message": "User not found"}, 404
+
+        # Perform the blocking action here, e.g., update user's status in the database
+        user_to_block.blocked = True  # Set blocked status to True
+        user_to_block.disabled_login = True  # Set flag to disable login
+        db.session.commit()
+
+        return {"status": "success", "message": "User blocked and login disabled successfully"}, 200
+
 class DiscourseTopicAPI(Resource):
     def post(self):
         data = request.get_json()
@@ -1025,7 +1136,7 @@ class DiscourseTopicAPI(Resource):
             headers = {"Content-Type": "application/json; charset=utf-8",
                     "Api-Key":"115af25971f9d12687f0949dffad8b3150e6ab536d85f364e4bf5f0c9ce3278e",
                     "Api-Username":username}
-            
+
             data = {
                     "title": title,
                     "raw": raw,

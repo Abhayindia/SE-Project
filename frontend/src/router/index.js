@@ -14,6 +14,10 @@ import ManageUsersComponent from '../components/ManageUsersComponent.vue';
 import ManageFAQSuggestionsComponent from '../components/ManageFAQComponent.vue';
 import ManageFlaggedPosts from '../components/ManageFlaggedPosts.vue';
 import AddAdminsComponent from '../components/AddAdmins.vue';
+import UnresolvedTickets from '../components/UnresolvedTickets';
+import EscalatedTickets from '@/components/EscalatedTickets.vue';
+import BanUsers from '@/components/BanUsers.vue';
+
 // import store from "../store";
 const routes = [
     {
@@ -72,7 +76,22 @@ const routes = [
         path: "/addAdmins",
         component: AddAdminsComponent,
         name: "AddAdmins"
-    }
+    },
+    {
+        path: "/unresolvedtickets",
+        component: UnresolvedTickets,
+        name: "unresolvedTickets"
+    },
+    {
+        path: "/escalatedtickets",
+        component: EscalatedTickets,
+        name: "escalatedTickets"   
+    },
+    {
+        path: "/banusers",
+        component: BanUsers,
+        name: "banUsers"   
+    },
 ];
 const router = createRouter({
     history: createWebHistory(),

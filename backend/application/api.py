@@ -1013,6 +1013,58 @@ class EscalateTicketAPI(Resource):
 
         return jsonify({'message': 'Ticket escalated successfully'})
 
+#NEW EscalateTicketAPI
+# class EscalateTicketAPI(Resource):
+#     def post(self):
+#         data = request.get_json()
+#         ticket_id = data.get('ticket_id')
+#         role_id = data.get('role_id')
+#         is_escalated = data.get('is_escalated')  # Default value is False if not provided
+#         print(is_escalated)
+#         if ticket_id is None:
+#             return {'error': 'Ticket ID is required'}, 400
+        
+#         if is_escalated:  # Check if is_escalated is True
+#             print("Ticket is already escalated.")
+#             return jsonify({'message': 'Ticket is already escalated'})
+
+#         temp_id = ticket_id
+#         ticket_id = {'tickets' : ticket_id }            
+#         ticket_id = json.dumps(ticket_id)
+#         ticket = Ticket.query.get(ticket_id)
+        
+#         if ticket:
+#             ticket.is_escalated = 1  # Set the value to 1
+#             ticket.escalated_by = role_id
+#             db.session.commit()
+                    
+#         webhook_url = "https://chat.googleapis.com/v1/spaces/AAAA5TEogcY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=-DWAU3G0CD5SylaJ_g_aIU9PW-Z8I7hHfyJm1As7k2Y"
+        
+#         if role_id == 1:
+#             message = f"Escalation alert for Ticket Number {temp_id} by a Student."
+#         elif role_id == 2:
+#             message = f"Escalation alert for Ticket Number {temp_id} by a Support Staff Member."
+#         elif role_id == 3:
+#             message = f"Escalation alert for Ticket Number {temp_id} by an Admin."
+#         elif role_id == 4:
+#             message = f"Escalation alert for Ticket Number {temp_id} by a Manager."
+#         elif role_id == 5:
+#             message = f"Escalation alert for Ticket Number {temp_id} by a Moderator."
+#         else:
+#             message = f"Escalation alert for Ticket Number {temp_id}."
+
+#         payload = {
+#             "text": message
+#         }
+#         response = requests.post(webhook_url, json=payload)
+#         if response.status_code == 200:
+#             print("Message posted successfully.")
+#         else:
+#             print(f"Failed to post message. Status code: {response.status_code}")
+
+#         return {'message': 'Ticket escalated successfully'}
+
+
 
 class UnresolvedTicketsNotification(Resource):
     def get(self):
@@ -1094,6 +1146,37 @@ class ViewFlaggedPost(Resource):
             flagged_posts_data.append(post_data)
 
         return jsonify(flagged_posts_data)
+
+# NEW ViewFlaggedPost
+# class ViewFlaggedPost(Resource):
+#     @token_required
+#     def get(self, user):
+#         user_id = request.args.get('user_id')
+#         print(user_id)
+#         if user_id is None:
+#             return {"error": "User ID is required"},400
+        
+#         # Query flagged posts for the specified user including ticket information
+#         flagged_posts = db.session.query(Flagged_Post, Ticket)\
+#             .filter(Flagged_Post.creator_id == user_id)\
+#             .join(Ticket, Flagged_Post.ticket_id == Ticket.ticket_id)\
+#             .all()
+            
+#         print(flagged_posts)
+
+#         flagged_posts_data = []
+#         for flagged_post, ticket in flagged_posts:
+#             post_data = {
+#                 'ticket_id': flagged_post.ticket_id,
+#                 'title': ticket.title,
+#                 'description': ticket.description,
+                
+#             }
+#             flagged_posts_data.append(post_data)
+        
+#         print(flagged_posts_data)
+
+#         return jsonify(flagged_posts_data)
 
 class BanUsersNotifications(Resource):
     def post(self):

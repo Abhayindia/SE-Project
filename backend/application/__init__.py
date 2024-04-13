@@ -45,5 +45,5 @@ def create_app(conf=LocalDevelopmentConfig):
 
 app,api,celery = create_app()
 
-client = SearchClient.create("RRBO0FF8YF", LocalDevelopmentConfig.SEARCH_API_KEY)
-index = client.init_index('sociogrammers_app')
+client = SearchClient.create("IVJWLFM2WR", "957b579179cc6a5f229f083cb177e79d")
+index = client.init_index('ditto_app')

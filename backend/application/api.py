@@ -15,6 +15,26 @@ from werkzeug.exceptions import HTTPException
 from application import index
 import requests
 
+class FeedbackAPI(Resource):
+    def post(self):
+        data = request.get_json()
+        feedback = data.get('feedback')
+        if feedback == '' or feedback is None:
+            return {'error': 'Empty feedback submitted'}, 400
+        
+        webhook_url = "https://chat.googleapis.com/v1/spaces/AAAAFCXO6W0/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=68gqzOsIOMYmN4dUf48RjN-pHqMcoD8VgkuD_K8W2nI"
+        
+        payload = {
+            "text": feedback
+        }
+        response = requests.post(webhook_url, json=payload)
+        if response.status_code == 200:
+            print("Feedback submitted successfully.")
+        else:
+            print(f"Failed to post message. Status code: {response.status_code}")
+
+        return {'message': 'Feedback submitted successfully'}
+
 class TicketAPI(Resource):
     @token_required
     def get(user,self):
@@ -1213,11 +1233,11 @@ class DiscourseTopicAPI(Resource):
                 return '',201
             # print("Values",username,tid,title,raw,sep='\n',flush = True)
             if username is None or tid is None or title is None or raw is None:
-                # print("Raising from here",username,tid,title,raw,sep='\n')
+                print("Raising from here",username,tid,title,raw,sep='\n')
                 return '',403
             url = "http://localhost:4200/posts.json"
             headers = {"Content-Type": "application/json; charset=utf-8",
-                    "Api-Key":"115af25971f9d12687f0949dffad8b3150e6ab536d85f364e4bf5f0c9ce3278e",
+                    "Api-Key":"7f85cd0f1ead062e623976cff7d98d47a3ce80f2be98a0fce7c7e424eba44b3f",
                     "Api-Username":username}
 
             data = {
@@ -1226,12 +1246,14 @@ class DiscourseTopicAPI(Resource):
                     "category": category,
                     "external_id":tid
                     }
+            print(data)
             response = requests.post(url, headers=headers, json=data)
             stat = response.status_code
-            # print("Status Code", stat)
-            # print("JSON Response ", res)
+            print("Status Code", stat)
+            print("JSON Response ", response.json())
             if stat == 200:
                 print("Created post successulututu")
                 return '',200
+            return '',403
         except:
             return '',403

@@ -3,6 +3,7 @@
     <NavBar />
     <!-- <LoginComponent /> -->
       <router-view></router-view>
+      <FeedbackButton />
   </div>
 </template>
 
@@ -10,11 +11,13 @@
 
 // import LoginComponent from './components/LoginComponent.vue'
 import NavBar from './components/NavBar.vue'
+import FeedbackButton from './components/FeedbackButton.vue'
 export default {
   name: 'App',
   components: {
     // LoginComponent,
-    NavBar
+    NavBar,
+    FeedbackButton
   }
 }
 </script>

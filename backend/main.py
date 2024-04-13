@@ -1,9 +1,10 @@
 from application import app, api, celery
 
 from application.api import EscalateTicketAPI, TicketAPI , UserAPI, FAQApi, ResponseAPI_by_ticket, ResponseAPI_by_response_id, ResponseAPI_by_user,TicketAll, getResolutionTimes, flaggedPostAPI, getResponseAPI_by_ticket,Login,ImportResourceUser, ResponseAPI_by_responseID_delete, CategoryAPI
-from application.api import DiscourseTopicAPI, TicketDelete,UserDelete, UnresolvedTicketsNotification, EscalatedTicketNotification, BanUsersNotifications, FetchPotentialBan, ViewFlaggedPost
+from application.api import FeedbackAPI,DiscourseTopicAPI, TicketDelete,UserDelete, UnresolvedTicketsNotification, EscalatedTicketNotification, BanUsersNotifications, FetchPotentialBan, ViewFlaggedPost
 
 api.add_resource(TicketAPI, '/api/ticket')
+api.add_resource(FeedbackAPI,'/api/submitFeedback')
 api.add_resource(UserAPI,'/api/user')
 api.add_resource(FAQApi, '/api/faq', '/api/faq/<int:ticket_id>')
 api.add_resource(ResponseAPI_by_ticket, '/api/respTicket') #For getting responses with ticket_id

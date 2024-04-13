@@ -49,12 +49,12 @@ export default {
     },
     watch: {
         title: async function (val) {
-           let url = 'https://RRBO0FF8YF-dsn.algolia.net/1/indexes/sociogrammers_app/query'
+            let url = 'https://IVJWLFM2WR-dsn.algolia.net/1/indexes/ditto_app/query'
            // eslint-disable-next-line
            let config = {
                 headers: {
-                    'X-Algolia-Application-Id': 'RRBO0FF8YF',
-                    'X-Algolia-API-Key': 'c9cbb1a94125ef968dc0dc85f9d235f9',
+                    'X-Algolia-Application-Id': 'IVJWLFM2WR',
+                    'X-Algolia-API-Key': 'ab76cc72f4b75bdbebaeac4edb705f95',
                         }
                     }
             // eslint-disable-next-line

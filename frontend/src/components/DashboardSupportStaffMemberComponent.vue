@@ -117,6 +117,7 @@ export default {
             axios.post("/api/escalate_to_gspace", { ticket_id: ticket_id, role_id: role_id})
                 .then((res) => {
                     console.log(res);
+                    alert(res.data.message);
                 })
                 .catch((err) => {
                     console.log(err);

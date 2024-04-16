@@ -15,7 +15,7 @@ from application import db
 url_escalate = BASE + "/api/escalate_to_gspace"
 
 def test_ticket_escalate_success_200():
-    input_dict = {"ticket_id": 2, "role_id" : 2, "is_escalated" : 0}  
+    input_dict = {"ticket_id": 1, "role_id" : 2, "is_escalated" : 0}  
     headers = {'Content-Type': 'application/json'}
     request=requests.post(url = url_escalate,json = input_dict, headers=headers) 
     response = request.json()
@@ -30,12 +30,12 @@ def test_ticket_escalate_id_missing_400():
     assert request.status_code == 400
     assert response['error'] == "Ticket ID is required"
 
-def test_ticket_already_escalated_200():
-    input_dict = {"ticket_id": 1, "role_id" : 2, "is_escalated" : 1}
+def test_ticket_already_escalated_201():
+    input_dict = {"ticket_id": 2, "role_id" : 2, "is_escalated" : 1}
     headers = {'Content-Type': 'application/json'}
     request=requests.post(url = url_escalate,json = input_dict, headers=headers) 
     response = request.json()
-    assert request.status_code == 200
+    assert request.status_code == 201
     assert response['message'] == "Ticket is already escalated"
 
 #--------------------------------------------- UnresolvedTicketsNotification -----------------------------------------------------
@@ -75,7 +75,7 @@ url_flag_post = BASE + "/api/get_flagged_posts"
 
 def token_login_support_agent():
     url=BASE+"/login"
-    data={"email":"admin@gmail.com","password":"pass@123"}
+    data={"email":"admin@gmail.com","password":"pass@1234"}
     response=requests.post(url,data=data)
     return response.json()["token"]
     

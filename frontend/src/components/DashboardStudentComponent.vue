@@ -219,7 +219,7 @@ export default {
             axios.post("/api/escalate_to_gspace", { ticket_id: ticket_id, role_id: role_id, is_escalated: is_escalated})
                 .then((res) => {
                     console.log(res);
-                    alert("Escalated successfully");
+                    alert(res.data.message);
                     // Optionally, you can provide feedback to the user that escalation was successful
                 })
                 .catch((err) => {

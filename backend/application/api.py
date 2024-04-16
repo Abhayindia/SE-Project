@@ -986,22 +986,20 @@ class CategoryAPI(Resource):
         else: 
             abort(403,message="Unauthorized")
 
+
 class EscalateTicketAPI(Resource):
     def post(self):
         data = request.get_json()
         ticket_id = data.get('ticket_id')
         role_id = data.get('role_id')
-        is_escalated = data.get('is_escalated')  # Default value is False if not provided
-        print(is_escalated)
         if ticket_id is None:
-            return jsonify({'error': 'Ticket ID is required'}), 400
-        
-        if is_escalated:  # Check if is_escalated is True
-            print("Ticket is already escalated.")
-            return jsonify({'message': 'Ticket is already escalated'})
-        
-        # Update database
+            return {'error': 'Ticket ID is required'}, 400
+
         ticket = Ticket.query.get(ticket_id)
+        
+        if ticket.is_escalated:  # If is_escalated is True ticket is already escalated
+            print("Ticket is already escalated.")
+            return {'message': 'Ticket is already escalated'},201
         if ticket:
             ticket.is_escalated = 1  # Set the value to 1
             ticket.escalated_by = role_id
@@ -1031,58 +1029,7 @@ class EscalateTicketAPI(Resource):
         else:
             print(f"Failed to post message. Status code: {response.status_code}")
 
-        return jsonify({'message': 'Ticket escalated successfully'})
-
-#NEW EscalateTicketAPI
-# class EscalateTicketAPI(Resource):
-#     def post(self):
-#         data = request.get_json()
-#         ticket_id = data.get('ticket_id')
-#         role_id = data.get('role_id')
-#         is_escalated = data.get('is_escalated')  # Default value is False if not provided
-#         print(is_escalated)
-#         if ticket_id is None:
-#             return {'error': 'Ticket ID is required'}, 400
-        
-#         if is_escalated:  # Check if is_escalated is True
-#             print("Ticket is already escalated.")
-#             return jsonify({'message': 'Ticket is already escalated'})
-
-#         temp_id = ticket_id
-#         ticket_id = {'tickets' : ticket_id }            
-#         ticket_id = json.dumps(ticket_id)
-#         ticket = Ticket.query.get(ticket_id)
-        
-#         if ticket:
-#             ticket.is_escalated = 1  # Set the value to 1
-#             ticket.escalated_by = role_id
-#             db.session.commit()
-                    
-#         webhook_url = "https://chat.googleapis.com/v1/spaces/AAAA5TEogcY/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=-DWAU3G0CD5SylaJ_g_aIU9PW-Z8I7hHfyJm1As7k2Y"
-        
-#         if role_id == 1:
-#             message = f"Escalation alert for Ticket Number {temp_id} by a Student."
-#         elif role_id == 2:
-#             message = f"Escalation alert for Ticket Number {temp_id} by a Support Staff Member."
-#         elif role_id == 3:
-#             message = f"Escalation alert for Ticket Number {temp_id} by an Admin."
-#         elif role_id == 4:
-#             message = f"Escalation alert for Ticket Number {temp_id} by a Manager."
-#         elif role_id == 5:
-#             message = f"Escalation alert for Ticket Number {temp_id} by a Moderator."
-#         else:
-#             message = f"Escalation alert for Ticket Number {temp_id}."
-
-#         payload = {
-#             "text": message
-#         }
-#         response = requests.post(webhook_url, json=payload)
-#         if response.status_code == 200:
-#             print("Message posted successfully.")
-#         else:
-#             print(f"Failed to post message. Status code: {response.status_code}")
-
-#         return {'message': 'Ticket escalated successfully'}
+        return {'message': 'Ticket escalated successfully'}
 
 
 
@@ -1107,6 +1054,7 @@ class UnresolvedTicketsNotification(Resource):
 class EscalatedTicketNotification(Resource):
     def get(self):
         try:
+            # Filtering tickets escalated by support agent
             unresolved_tickets = Ticket.query.filter_by(escalated_by=2).all()
             notifications = []
             for ticket in unresolved_tickets:
@@ -1146,14 +1094,17 @@ class ViewFlaggedPost(Resource):
     @token_required
     def get(self, user):
         user_id = request.args.get('user_id')
+        print(user_id)
         if user_id is None:
-            return jsonify({"error": "User ID is required"}), 400
+            return {"error": "User ID is required"},400
         
         # Query flagged posts for the specified user including ticket information
         flagged_posts = db.session.query(Flagged_Post, Ticket)\
             .filter(Flagged_Post.creator_id == user_id)\
             .join(Ticket, Flagged_Post.ticket_id == Ticket.ticket_id)\
             .all()
+            
+        print(flagged_posts)
 
         flagged_posts_data = []
         for flagged_post, ticket in flagged_posts:
@@ -1161,42 +1112,13 @@ class ViewFlaggedPost(Resource):
                 'ticket_id': flagged_post.ticket_id,
                 'title': ticket.title,
                 'description': ticket.description,
-                # Include other relevant post information here
+                
             }
             flagged_posts_data.append(post_data)
+        
+        print(flagged_posts_data)
 
         return jsonify(flagged_posts_data)
-
-# NEW ViewFlaggedPost
-# class ViewFlaggedPost(Resource):
-#     @token_required
-#     def get(self, user):
-#         user_id = request.args.get('user_id')
-#         print(user_id)
-#         if user_id is None:
-#             return {"error": "User ID is required"},400
-        
-#         # Query flagged posts for the specified user including ticket information
-#         flagged_posts = db.session.query(Flagged_Post, Ticket)\
-#             .filter(Flagged_Post.creator_id == user_id)\
-#             .join(Ticket, Flagged_Post.ticket_id == Ticket.ticket_id)\
-#             .all()
-            
-#         print(flagged_posts)
-
-#         flagged_posts_data = []
-#         for flagged_post, ticket in flagged_posts:
-#             post_data = {
-#                 'ticket_id': flagged_post.ticket_id,
-#                 'title': ticket.title,
-#                 'description': ticket.description,
-                
-#             }
-#             flagged_posts_data.append(post_data)
-        
-#         print(flagged_posts_data)
-
-#         return jsonify(flagged_posts_data)
 
 class BanUsersNotifications(Resource):
     def post(self):
@@ -1217,7 +1139,7 @@ class BanUsersNotifications(Resource):
 
         return {"status": "success", "message": "User blocked and login disabled successfully"}, 200
 
-class DiscourseTopicAPI(Resource):
+class DiscourseTopicAPI(Resource):# Post a topic to discourse
     def post(self):
         data = request.get_json()
         try:
@@ -1228,31 +1150,25 @@ class DiscourseTopicAPI(Resource):
             raw = data["raw"]
             category = 4
             existing = requests.get("http://localhost:4200/t/external_id/"+str(tid)+".json")
-            if existing.status_code == 200:
-                print("Post with title",title,"aws already created")
+            if existing.status_code == 200:# Checking if ticket has already been moved to discourse
                 return '',201
-            # print("Values",username,tid,title,raw,sep='\n',flush = True)
             if username is None or tid is None or title is None or raw is None:
-                print("Raising from here",username,tid,title,raw,sep='\n')
                 return '',403
             url = "http://localhost:4200/posts.json"
             headers = {"Content-Type": "application/json; charset=utf-8",
                     "Api-Key":"7f85cd0f1ead062e623976cff7d98d47a3ce80f2be98a0fce7c7e424eba44b3f",
                     "Api-Username":username}
-
             data = {
                     "title": title,
                     "raw": raw,
                     "category": category,
                     "external_id":tid
                     }
-            print(data)
             response = requests.post(url, headers=headers, json=data)
             stat = response.status_code
             print("Status Code", stat)
             print("JSON Response ", response.json())
             if stat == 200:
-                print("Created post successulututu")
                 return '',200
             return '',403
         except:

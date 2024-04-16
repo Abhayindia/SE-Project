@@ -74,6 +74,7 @@ async blockAndDisableUser(userId) {
             console.log(response.data); // Log response from backend
             // Optionally, update the UI to reflect the user has been blocked
             this.disableLogin = true; // Set flag to disable login
+            this.$router.push("/dashboard");
         } catch (error) {
             console.error('Error blocking user:', error);
         }
